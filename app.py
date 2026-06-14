@@ -51,9 +51,7 @@ DEFAULT_LLAMA_ARGS = [
     "--spec-type", "draft-mtp",
     "--spec-draft-n-max", "2",
     "--reasoning-budget", "1024",
-    "--ui",
-    "--cache-reuse", "256",
-    "-sps", "0.5",
+    "--ui"
 ]
 
 app = FastAPI(title="RunPod llama.cpp OpenAI-compatible proxy", version="1.0.0")
