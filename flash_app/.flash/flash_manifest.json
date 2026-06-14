@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "python_version": "3.12",
-  "generated_at": "2026-06-14T17:05:28.260990Z",
+  "generated_at": "2026-06-14T17:19:28.874012Z",
   "project_name": "flash_app",
   "resources": {
     "llamacpp-openai-adapter": {
@@ -81,7 +81,7 @@
       },
       "target_python_version": "3.12",
       "env": {
-        "_FLASH_SOURCE_FINGERPRINT": "c5e1cdba5a21a275f034a3e3fc56e0cb457d649fe925a626361cfd4b9e0b2e4d"
+        "_FLASH_SOURCE_FINGERPRINT": "25d4b37fa308dcb89a544b7a7f34c7c5234d343a5d2ea0fde5dd1b0624bbf16b"
       },
       "endpoint_id": "y87q5y3m6p6k0h"
     }
@@ -104,7 +104,7 @@
       "GET /v1/models": "models"
     }
   },
-  "source_fingerprint": "c5e1cdba5a21a275f034a3e3fc56e0cb457d649fe925a626361cfd4b9e0b2e4d",
+  "source_fingerprint": "25d4b37fa308dcb89a544b7a7f34c7c5234d343a5d2ea0fde5dd1b0624bbf16b",
   "resources_endpoints": {
     "llamacpp-openai-adapter": "https://y87q5y3m6p6k0h.api.runpod.ai"
   }

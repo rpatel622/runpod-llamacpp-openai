@@ -58,3 +58,7 @@ Traceback (most recent call last):
 RuntimeError: Failed to provision resources: GraphQL errors: Max workers across all endpoints must not exceed your workers quota (10). Reduce the max workers for other endpoints or lower the max worker count for this endpoint to at most 4.
 2026-06-14 17:05:28,232 | INFO  | Endpoint 'llamacpp-gemma4-queue': using user-supplied image 'ghcr.io/rpatel622/runpod-llamacpp-openai:latest' (overrides Flash runtime image)
 2026-06-14 17:05:28,234 | INFO  | Endpoint 'llamacpp-gemma4-queue': using user-supplied image 'ghcr.io/rpatel622/runpod-llamacpp-openai:latest' (overrides Flash runtime image)
+2026-06-14 17:17:25,068 | INFO  | Endpoint 'llamacpp-gemma4-queue': using user-supplied image 'ghcr.io/rpatel622/runpod-llamacpp-openai:latest' (overrides Flash runtime image)
+2026-06-14 17:17:25,071 | INFO  | Endpoint 'llamacpp-gemma4-queue': using user-supplied image 'ghcr.io/rpatel622/runpod-llamacpp-openai:latest' (overrides Flash runtime image)
+2026-06-14 17:19:28,824 | INFO  | Endpoint 'llamacpp-gemma4-queue': using user-supplied image 'ghcr.io/rpatel622/runpod-llamacpp-openai:latest' (overrides Flash runtime image)
+2026-06-14 17:19:28,831 | INFO  | Endpoint 'llamacpp-gemma4-queue': using user-supplied image 'ghcr.io/rpatel622/runpod-llamacpp-openai:latest' (overrides Flash runtime image)
