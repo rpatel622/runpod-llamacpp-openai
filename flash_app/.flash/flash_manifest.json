@@ -1,0 +1,111 @@
+{
+  "version": "1.0",
+  "python_version": "3.12",
+  "generated_at": "2026-06-14T17:05:28.260990Z",
+  "project_name": "flash_app",
+  "resources": {
+    "llamacpp-openai-adapter": {
+      "resource_type": "CpuLiveLoadBalancer",
+      "file_path": "lb_worker.py",
+      "local_path_prefix": "/lb_worker",
+      "module_path": "lb_worker",
+      "functions": [
+        {
+          "name": "chat_completions",
+          "module": "lb_worker",
+          "is_async": true,
+          "is_class": false,
+          "http_method": "POST",
+          "http_path": "/v1/chat/completions"
+        },
+        {
+          "name": "chat_completions_alias",
+          "module": "lb_worker",
+          "is_async": true,
+          "is_class": false,
+          "http_method": "POST",
+          "http_path": "/chat/completions"
+        },
+        {
+          "name": "completions",
+          "module": "lb_worker",
+          "is_async": true,
+          "is_class": false,
+          "http_method": "POST",
+          "http_path": "/v1/completions"
+        },
+        {
+          "name": "completions_alias",
+          "module": "lb_worker",
+          "is_async": true,
+          "is_class": false,
+          "http_method": "POST",
+          "http_path": "/completions"
+        },
+        {
+          "name": "health",
+          "module": "lb_worker",
+          "is_async": true,
+          "is_class": false,
+          "http_method": "GET",
+          "http_path": "/health"
+        },
+        {
+          "name": "models",
+          "module": "lb_worker",
+          "is_async": true,
+          "is_class": false,
+          "http_method": "GET",
+          "http_path": "/v1/models"
+        }
+      ],
+      "is_load_balanced": true,
+      "is_live_resource": true,
+      "config_variable": "api",
+      "makes_remote_calls": true,
+      "imageName": "runpod/flash-lb-cpu:py3.12-latest",
+      "instanceIds": [
+        "cpu5c-4-8"
+      ],
+      "workersMin": 1,
+      "workersMax": 5,
+      "idleTimeout": 60,
+      "scalerType": "REQUEST_COUNT",
+      "scalerValue": 4,
+      "template": {
+        "containerDiskInGb": 60,
+        "dockerArgs": "",
+        "startScript": "",
+        "advancedStart": false,
+        "containerRegistryAuthId": ""
+      },
+      "target_python_version": "3.12",
+      "env": {
+        "_FLASH_SOURCE_FINGERPRINT": "c5e1cdba5a21a275f034a3e3fc56e0cb457d649fe925a626361cfd4b9e0b2e4d"
+      },
+      "endpoint_id": "y87q5y3m6p6k0h"
+    }
+  },
+  "function_registry": {
+    "chat_completions": "llamacpp-openai-adapter",
+    "chat_completions_alias": "llamacpp-openai-adapter",
+    "completions": "llamacpp-openai-adapter",
+    "completions_alias": "llamacpp-openai-adapter",
+    "health": "llamacpp-openai-adapter",
+    "models": "llamacpp-openai-adapter"
+  },
+  "routes": {
+    "llamacpp-openai-adapter": {
+      "POST /v1/chat/completions": "chat_completions",
+      "POST /chat/completions": "chat_completions_alias",
+      "POST /v1/completions": "completions",
+      "POST /completions": "completions_alias",
+      "GET /health": "health",
+      "GET /v1/models": "models"
+    }
+  },
+  "source_fingerprint": "c5e1cdba5a21a275f034a3e3fc56e0cb457d649fe925a626361cfd4b9e0b2e4d",
+  "resources_endpoints": {
+    "llamacpp-openai-adapter": "https://y87q5y3m6p6k0h.api.runpod.ai"
+  }
+}

@@ -1,0 +1,60 @@
+2026-06-14 16:58:48,132 | INFO  | Endpoint 'llamacpp-gemma4-queue': using user-supplied image 'ghcr.io/rpatel622/runpod-llamacpp-openai:latest' (overrides Flash runtime image)
+2026-06-14 16:58:48,134 | INFO  | Endpoint 'llamacpp-gemma4-queue': using user-supplied image 'ghcr.io/rpatel622/runpod-llamacpp-openai:latest' (overrides Flash runtime image)
+2026-06-14 16:59:58,377 | ERROR | CpuLiveLoadBalancer:None failed to deploy: GraphQL errors: Max workers across all endpoints must not exceed your workers quota (10). Reduce the max workers for other endpoints or lower the max worker count for this endpoint to at most 4.
+2026-06-14 16:59:58,377 | ERROR | Provisioning failed: GraphQL errors: Max workers across all endpoints must not exceed your workers quota (10). Reduce the max workers for other endpoints or lower the max worker count for this endpoint to at most 4.
+2026-06-14 16:59:58,377 | ERROR | Resource provisioning failed: Failed to provision resources: GraphQL errors: Max workers across all endpoints must not exceed your workers quota (10). Reduce the max workers for other endpoints or lower the max worker count for this endpoint to at most 4.
+2026-06-14 16:59:58,381 | ERROR | Deploy failed
+Traceback (most recent call last):
+  File "/workspaces/runpod-llamacpp-openai/flash_app/.venv/lib/python3.12/site-packages/runpod_flash/cli/utils/deployment.py", line 200, in reconcile_and_provision_resources
+    provisioning_results = await asyncio.wait_for(
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/codespace/.python/current/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/workspaces/runpod-llamacpp-openai/flash_app/.venv/lib/python3.12/site-packages/runpod_flash/core/resources/resource_manager.py", line 313, in get_or_deploy_resource
+    deployed_resource = await self._deploy_with_error_context(config)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/runpod-llamacpp-openai/flash_app/.venv/lib/python3.12/site-packages/runpod_flash/core/resources/resource_manager.py", line 220, in _deploy_with_error_context
+    return await config._do_deploy()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/runpod-llamacpp-openai/flash_app/.venv/lib/python3.12/site-packages/runpod_flash/core/resources/load_balancer_sls_resource.py", line 152, in _do_deploy
+    deployed = await super()._do_deploy()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/runpod-llamacpp-openai/flash_app/.venv/lib/python3.12/site-packages/runpod_flash/core/resources/serverless.py", line 1094, in _do_deploy
+    result = await client.save_endpoint(payload)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/runpod-llamacpp-openai/flash_app/.venv/lib/python3.12/site-packages/runpod_flash/core/api/runpod.py", line 332, in save_endpoint
+    result = await self._execute_graphql(mutation, variables)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/runpod-llamacpp-openai/flash_app/.venv/lib/python3.12/site-packages/runpod_flash/core/api/runpod.py", line 195, in _execute_graphql
+    return await self._execute_graphql_once(query, variables)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/runpod-llamacpp-openai/flash_app/.venv/lib/python3.12/site-packages/runpod_flash/core/api/runpod.py", line 170, in _execute_graphql_once
+    raise _GraphQLErrorResponse(
+runpod_flash.core.api.runpod._GraphQLErrorResponse: GraphQL errors: Max workers across all endpoints must not exceed your workers quota (10). Reduce the max workers for other endpoints or lower the max worker count for this endpoint to at most 4.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/runpod-llamacpp-openai/flash_app/.venv/lib/python3.12/site-packages/runpod_flash/cli/commands/deploy.py", line 87, in deploy_command
+    asyncio.run(_resolve_and_deploy(app_name, env_name, archive_path))
+  File "/home/codespace/.python/current/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/home/codespace/.python/current/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/codespace/.python/current/lib/python3.12/asyncio/base_events.py", line 684, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/workspaces/runpod-llamacpp-openai/flash_app/.venv/lib/python3.12/site-packages/runpod_flash/cli/commands/deploy.py", line 262, in _resolve_and_deploy
+    result = await deploy_from_uploaded_build(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/runpod-llamacpp-openai/flash_app/.venv/lib/python3.12/site-packages/runpod_flash/cli/utils/deployment.py", line 328, in deploy_from_uploaded_build
+    resources_endpoints = await reconcile_and_provision_resources(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/runpod-llamacpp-openai/flash_app/.venv/lib/python3.12/site-packages/runpod_flash/cli/utils/deployment.py", line 211, in reconcile_and_provision_resources
+    raise RuntimeError(f"Failed to provision resources: {e}") from e
+RuntimeError: Failed to provision resources: GraphQL errors: Max workers across all endpoints must not exceed your workers quota (10). Reduce the max workers for other endpoints or lower the max worker count for this endpoint to at most 4.
+2026-06-14 17:05:28,232 | INFO  | Endpoint 'llamacpp-gemma4-queue': using user-supplied image 'ghcr.io/rpatel622/runpod-llamacpp-openai:latest' (overrides Flash runtime image)
+2026-06-14 17:05:28,234 | INFO  | Endpoint 'llamacpp-gemma4-queue': using user-supplied image 'ghcr.io/rpatel622/runpod-llamacpp-openai:latest' (overrides Flash runtime image)
