@@ -1,4 +1,6 @@
 import os
+import time
+import uuid
 from typing import Any
 
 from runpod_flash import Endpoint
@@ -28,15 +30,67 @@ def _drop_none(data: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in data.items() if v is not None}
 
 
+def _normalize_openai_response(endpoint: str, payload: dict[str, Any], requested_model: str | None) -> dict[str, Any]:
+    if "error" in payload:
+        return payload
+
+    model = str(payload.get("model") or requested_model or MODEL_NAME)
+    created = int(payload.get("created") or time.time())
+
+    if endpoint == "/v1/chat/completions":
+        payload.setdefault("id", f"chatcmpl-{uuid.uuid4().hex}")
+        payload.setdefault("object", "chat.completion")
+        payload["created"] = created
+        payload["model"] = model
+
+        choices = payload.get("choices")
+        if isinstance(choices, list):
+            for index, choice in enumerate(choices):
+                if not isinstance(choice, dict):
+                    continue
+                choice.setdefault("index", index)
+                choice.setdefault("finish_reason", "stop")
+                message = choice.get("message")
+                if not isinstance(message, dict):
+                    content = choice.get("text", "")
+                    choice["message"] = {"role": "assistant", "content": content if isinstance(content, str) else str(content)}
+                else:
+                    message.setdefault("role", "assistant")
+                    if message.get("content") is None:
+                        message["content"] = ""
+        return payload
+
+    if endpoint == "/v1/completions":
+        payload.setdefault("id", f"cmpl-{uuid.uuid4().hex}")
+        payload.setdefault("object", "text_completion")
+        payload["created"] = created
+        payload["model"] = model
+
+        choices = payload.get("choices")
+        if isinstance(choices, list):
+            for index, choice in enumerate(choices):
+                if not isinstance(choice, dict):
+                    continue
+                choice.setdefault("index", index)
+                choice.setdefault("finish_reason", "stop")
+                if choice.get("text") is None:
+                    choice["text"] = ""
+        return payload
+
+    return payload
+
+
 async def _run_llama_queue(endpoint: str, body: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(body, dict):
         return _openai_error("request body must be a JSON object")
 
-    if body.get("stream") is True:
-        return _openai_error("stream=true is not supported by the queue-backed adapter; use non-streaming requests")
+    # Queue-backed Flash adapter is request/response only. If a client sends
+    # stream=true, force non-streaming upstream and return one complete OpenAI
+    # response. This is more compatible with strict clients than returning an
+    # early error object that may be parsed as a broken stream.
+    body["stream"] = False
 
     body.setdefault("model", MODEL_NAME)
-    body.setdefault("stream", False)
 
     job = await llama_gpu.run({"input": {"endpoint": endpoint, "body": body}})
     await job.wait(timeout=JOB_WAIT_TIMEOUT_SECONDS)
@@ -50,7 +104,7 @@ async def _run_llama_queue(endpoint: str, body: dict[str, Any]) -> dict[str, Any
     if not isinstance(output, dict):
         return _openai_error(f"unexpected queue output type: {type(output).__name__}", 502, "bad_gateway")
 
-    return output
+    return _normalize_openai_response(endpoint, output, body.get("model"))
 
 
 # Do not define /ping. Flash reserves /ping and /execute internally.
