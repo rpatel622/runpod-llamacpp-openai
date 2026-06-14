@@ -31,9 +31,9 @@ def _openai_error(message: str, status_code: int = 400, error_type: str = "inval
 
 
 def _completion_endpoint_for_path(path: str) -> str:
-    if path == "/v1/chat/completions":
+    if path in {"/v1/chat/completions", "/v1/chat/completions/", "/chat/completions", "/chat/completions/"}:
         return "/v1/chat/completions"
-    if path == "/v1/completions":
+    if path in {"/v1/completions", "/v1/completions/", "/completions", "/completions/"}:
         return "/v1/completions"
     raise ValueError(f"unsupported path: {path}")
 
@@ -71,6 +71,7 @@ async def _run_llama_queue(endpoint: str, body: dict[str, Any]) -> dict[str, Any
 
 # Do not define /ping. Flash reserves /ping and /execute internally.
 @api.get("/health")
+@api.get("/health/")
 async def health() -> dict[str, Any]:
     return {
         "status": "ok",
@@ -81,6 +82,9 @@ async def health() -> dict[str, Any]:
 
 
 @api.get("/v1/models")
+@api.get("/v1/models/")
+@api.get("/models")
+@api.get("/models/")
 async def models() -> dict[str, Any]:
     return {
         "object": "list",
@@ -96,20 +100,24 @@ async def models() -> dict[str, Any]:
 
 
 @api.post("/v1/chat/completions")
+@api.post("/v1/chat/completions/")
 async def chat_completions(body: dict[str, Any]) -> dict[str, Any]:
     return await _run_llama_queue(_completion_endpoint_for_path("/v1/chat/completions"), body)
 
 
 @api.post("/chat/completions")
+@api.post("/chat/completions/")
 async def chat_completions_alias(body: dict[str, Any]) -> dict[str, Any]:
     return await chat_completions(body)
 
 
 @api.post("/v1/completions")
+@api.post("/v1/completions/")
 async def completions(body: dict[str, Any]) -> dict[str, Any]:
     return await _run_llama_queue(_completion_endpoint_for_path("/v1/completions"), body)
 
 
 @api.post("/completions")
+@api.post("/completions/")
 async def completions_alias(body: dict[str, Any]) -> dict[str, Any]:
     return await completions(body)
