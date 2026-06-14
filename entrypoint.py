@@ -13,9 +13,14 @@ def main() -> None:
         runpy.run_path("/app/handler.py", run_name="__main__")
         return
 
+    if mode in {"queue-adapter", "queue_adapter", "adapter", "openai-adapter", "openai_adapter"}:
+        runpy.run_path("/app/queue_adapter.py", run_name="__main__")
+        return
+
     raise SystemExit(
-        "Invalid RUNPOD_MODE. Use 'server' for load-balancing HTTP mode "
-        "or 'queue' for RunPod queue-worker mode."
+        "Invalid RUNPOD_MODE. Use 'server' for load-balancing HTTP mode, "
+        "'queue' for RunPod queue-worker mode, or 'queue-adapter' for "
+        "an OpenAI-compatible HTTP adapter backed by a queue endpoint."
     )
 
 
