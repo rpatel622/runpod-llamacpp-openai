@@ -35,7 +35,7 @@ DEFAULT_LLAMA_ARGS = [
     "--top-k", "64",
     "-ngl", "999",
     "-ngld", "999",
-    "--parallel", "1",
+    "--parallel", "3",
     "-b", "2048",
     "-ub", "2048",
     "--image-min-tokens", "1024",
@@ -52,7 +52,8 @@ DEFAULT_LLAMA_ARGS = [
     "--spec-draft-n-max", "2",
     "--reasoning-budget", "1024",
     "--ui",
-    "-n", "32768"
+    "-n", "32768",
+    "--override-kv", "gemma4.context_length=int:262144"
 ]
 
 app = FastAPI(title="RunPod llama.cpp OpenAI-compatible proxy", version="1.0.0")
