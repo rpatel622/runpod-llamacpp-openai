@@ -1,3 +1,4 @@
+import atexit
 import json
 import os
 import shutil
@@ -206,5 +207,9 @@ def _shutdown() -> None:
             _llama_proc.kill()
 
 
+atexit.register(_shutdown)
+
 if __name__ == "__main__":
+    if os.getenv("QUEUE_WARMUP", "1") != "0":
+        _ensure_backend_ready()
     runpod.serverless.start({"handler": handler})
