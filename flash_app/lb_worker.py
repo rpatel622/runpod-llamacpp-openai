@@ -1,5 +1,4 @@
 import os
-import time
 from typing import Any
 
 from runpod_flash import Endpoint
@@ -70,11 +69,7 @@ async def _run_llama_queue(endpoint: str, body: dict[str, Any]) -> dict[str, Any
     return output
 
 
-@api.get("/ping")
-async def ping() -> dict[str, Any]:
-    return {"status": "ok", "mode": "flash-lb-adapter", "ts": int(time.time())}
-
-
+# Do not define /ping. Flash reserves /ping and /execute internally.
 @api.get("/health")
 async def health() -> dict[str, Any]:
     return {
