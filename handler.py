@@ -134,13 +134,27 @@ def _ensure_backend_ready() -> None:
         _wait_for_llama()
 
 
+def _normalize_endpoint(endpoint_value: Any) -> str:
+    endpoint = str(endpoint_value or "/v1/chat/completions")
+    if not endpoint.startswith("/"):
+        endpoint = f"/{endpoint}"
+
+    aliases = {
+        "/chat/completions": "/v1/chat/completions",
+        "/completions": "/v1/completions",
+        "/models": "/v1/models",
+    }
+    return aliases.get(endpoint, endpoint)
+
+
 def _normalize_input(job_input: Any) -> tuple[str, dict[str, Any] | None]:
     if not isinstance(job_input, dict):
         raise ValueError("job input must be a JSON object")
 
-    endpoint = str(job_input.get("endpoint", job_input.get("path", "/v1/chat/completions")))
-    if not endpoint.startswith("/"):
-        endpoint = f"/{endpoint}"
+    # Supports both forms:
+    #   {"input": {"messages": [...]}}
+    #   {"input": {"endpoint": "/v1/chat/completions", "body": {"messages": [...]}}}
+    endpoint = _normalize_endpoint(job_input.get("endpoint", job_input.get("path", "/v1/chat/completions")))
 
     allowed = {"/v1/chat/completions", "/v1/completions", "/v1/models"}
     if endpoint not in allowed:
@@ -172,30 +186,60 @@ def _normalize_input(job_input: Any) -> tuple[str, dict[str, Any] | None]:
     return endpoint, body
 
 
-def handler(job: dict[str, Any]) -> dict[str, Any]:
-    _ensure_backend_ready()
-
-    endpoint, body = _normalize_input(job.get("input"))
-    timeout = httpx.Timeout(connect=10.0, read=None, write=60.0, pool=None)
-
-    with httpx.Client(timeout=timeout) as client:
-        if body is None:
-            response = client.get(f"{LLAMA_BASE}{endpoint}")
-        else:
-            response = client.post(f"{LLAMA_BASE}{endpoint}", json=body)
-
-    content_type = response.headers.get("content-type", "")
-    if "application/json" in content_type:
-        payload: Any = response.json()
-    else:
-        payload = response.text
-
+def _error_response(message: str, status_code: int = 400) -> dict[str, Any]:
     return {
-        "ok": response.status_code < 400,
-        "status_code": response.status_code,
-        "endpoint": endpoint,
-        "output": payload,
+        "error": {
+            "message": message,
+            "type": "invalid_request_error" if status_code < 500 else "server_error",
+            "code": status_code,
+        }
     }
+
+
+def _format_response(endpoint: str, status_code: int, payload: Any) -> dict[str, Any] | str:
+    # Default is raw OpenAI-compatible JSON so clients that blindly point at
+    # /runsync get the nearest possible response layout inside RunPod's output.
+    # Set RUNPOD_LEGACY_RESPONSE=1 to restore the older wrapper.
+    if os.getenv("RUNPOD_LEGACY_RESPONSE", "0") == "1":
+        return {
+            "ok": status_code < 400,
+            "status_code": status_code,
+            "endpoint": endpoint,
+            "output": payload,
+        }
+
+    if status_code >= 400:
+        if isinstance(payload, dict) and "error" in payload:
+            return payload
+        return _error_response(str(payload), status_code)
+
+    return payload
+
+
+def handler(job: dict[str, Any]) -> dict[str, Any] | str:
+    try:
+        _ensure_backend_ready()
+        endpoint, body = _normalize_input(job.get("input"))
+
+        timeout = httpx.Timeout(connect=10.0, read=None, write=60.0, pool=None)
+        with httpx.Client(timeout=timeout) as client:
+            if body is None:
+                response = client.get(f"{LLAMA_BASE}{endpoint}")
+            else:
+                response = client.post(f"{LLAMA_BASE}{endpoint}", json=body)
+
+        content_type = response.headers.get("content-type", "")
+        if "application/json" in content_type:
+            payload: Any = response.json()
+        else:
+            payload = response.text
+
+        return _format_response(endpoint, response.status_code, payload)
+
+    except ValueError as exc:
+        return _error_response(str(exc), 400)
+    except Exception as exc:
+        return _error_response(str(exc), 500)
 
 
 def _shutdown() -> None:
