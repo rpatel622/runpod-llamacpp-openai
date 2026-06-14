@@ -1,0 +1,12 @@
+[project]
+name = "runpod-llamacpp-openai-flash"
+version = "0.1.0"
+description = "RunPod Flash app combining an OpenAI-compatible load-balanced adapter with a queue-backed llama.cpp GPU worker."
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "runpod-flash>=0.0.0",
+    "httpx>=0.28.0",
+]
+
+[tool.uv]
+package = false
