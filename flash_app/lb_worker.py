@@ -21,21 +21,11 @@ api = Endpoint(
 
 
 def _openai_error(message: str, status_code: int = 400, error_type: str = "invalid_request_error") -> dict[str, Any]:
-    return {
-        "error": {
-            "message": message,
-            "type": error_type,
-            "code": status_code,
-        }
-    }
+    return {"error": {"message": message, "type": error_type, "code": status_code}}
 
 
-def _completion_endpoint_for_path(path: str) -> str:
-    if path in {"/v1/chat/completions", "/v1/chat/completions/", "/chat/completions", "/chat/completions/"}:
-        return "/v1/chat/completions"
-    if path in {"/v1/completions", "/v1/completions/", "/completions", "/completions/"}:
-        return "/v1/completions"
-    raise ValueError(f"unsupported path: {path}")
+def _drop_none(data: dict[str, Any]) -> dict[str, Any]:
+    return {k: v for k, v in data.items() if v is not None}
 
 
 async def _run_llama_queue(endpoint: str, body: dict[str, Any]) -> dict[str, Any]:
@@ -48,13 +38,7 @@ async def _run_llama_queue(endpoint: str, body: dict[str, Any]) -> dict[str, Any
     body.setdefault("model", MODEL_NAME)
     body.setdefault("stream", False)
 
-    job = await llama_gpu.run({
-        "input": {
-            "endpoint": endpoint,
-            "body": body,
-        }
-    })
-
+    job = await llama_gpu.run({"input": {"endpoint": endpoint, "body": body}})
     await job.wait(timeout=JOB_WAIT_TIMEOUT_SECONDS)
 
     if job.error:
@@ -73,12 +57,7 @@ async def _run_llama_queue(endpoint: str, body: dict[str, Any]) -> dict[str, Any
 @api.get("/health")
 @api.get("/health/")
 async def health() -> dict[str, Any]:
-    return {
-        "status": "ok",
-        "mode": "flash-lb-adapter",
-        "gpu_endpoint": "llamacpp-gemma4-queue",
-        "model": MODEL_NAME,
-    }
+    return {"status": "ok", "mode": "flash-lb-adapter", "gpu_endpoint": "llamacpp-gemma4-queue", "model": MODEL_NAME}
 
 
 @api.get("/v1/models")
@@ -88,36 +67,114 @@ async def health() -> dict[str, Any]:
 async def models() -> dict[str, Any]:
     return {
         "object": "list",
-        "data": [
-            {
-                "id": MODEL_NAME,
-                "object": "model",
-                "created": 0,
-                "owned_by": "runpod-llamacpp",
-            }
-        ],
+        "data": [{"id": MODEL_NAME, "object": "model", "created": 0, "owned_by": "runpod-llamacpp"}],
     }
+
+
+async def _chat_route(
+    model: str | None = None,
+    messages: list[dict[str, Any]] | None = None,
+    max_tokens: int | None = None,
+    max_completion_tokens: int | None = None,
+    temperature: float | None = None,
+    top_p: float | None = None,
+    stream: bool | None = None,
+    stop: str | list[str] | None = None,
+    tools: list[dict[str, Any]] | None = None,
+    tool_choice: str | dict[str, Any] | None = None,
+    response_format: dict[str, Any] | None = None,
+    seed: int | None = None,
+    presence_penalty: float | None = None,
+    frequency_penalty: float | None = None,
+    n: int | None = None,
+) -> dict[str, Any]:
+    body = _drop_none(locals())
+    return await _run_llama_queue("/v1/chat/completions", body)
 
 
 @api.post("/v1/chat/completions")
 @api.post("/v1/chat/completions/")
-async def chat_completions(body: dict[str, Any]) -> dict[str, Any]:
-    return await _run_llama_queue(_completion_endpoint_for_path("/v1/chat/completions"), body)
+async def chat_completions(
+    model: str | None = None,
+    messages: list[dict[str, Any]] | None = None,
+    max_tokens: int | None = None,
+    max_completion_tokens: int | None = None,
+    temperature: float | None = None,
+    top_p: float | None = None,
+    stream: bool | None = None,
+    stop: str | list[str] | None = None,
+    tools: list[dict[str, Any]] | None = None,
+    tool_choice: str | dict[str, Any] | None = None,
+    response_format: dict[str, Any] | None = None,
+    seed: int | None = None,
+    presence_penalty: float | None = None,
+    frequency_penalty: float | None = None,
+    n: int | None = None,
+) -> dict[str, Any]:
+    return await _chat_route(**locals())
 
 
 @api.post("/chat/completions")
 @api.post("/chat/completions/")
-async def chat_completions_alias(body: dict[str, Any]) -> dict[str, Any]:
-    return await chat_completions(body)
+async def chat_completions_alias(
+    model: str | None = None,
+    messages: list[dict[str, Any]] | None = None,
+    max_tokens: int | None = None,
+    max_completion_tokens: int | None = None,
+    temperature: float | None = None,
+    top_p: float | None = None,
+    stream: bool | None = None,
+    stop: str | list[str] | None = None,
+    tools: list[dict[str, Any]] | None = None,
+    tool_choice: str | dict[str, Any] | None = None,
+    response_format: dict[str, Any] | None = None,
+    seed: int | None = None,
+    presence_penalty: float | None = None,
+    frequency_penalty: float | None = None,
+    n: int | None = None,
+) -> dict[str, Any]:
+    return await _chat_route(**locals())
+
+
+async def _completion_route(
+    model: str | None = None,
+    prompt: str | list[str] | None = None,
+    max_tokens: int | None = None,
+    temperature: float | None = None,
+    top_p: float | None = None,
+    stream: bool | None = None,
+    stop: str | list[str] | None = None,
+    echo: bool | None = None,
+) -> dict[str, Any]:
+    body = _drop_none(locals())
+    return await _run_llama_queue("/v1/completions", body)
 
 
 @api.post("/v1/completions")
 @api.post("/v1/completions/")
-async def completions(body: dict[str, Any]) -> dict[str, Any]:
-    return await _run_llama_queue(_completion_endpoint_for_path("/v1/completions"), body)
+async def completions(
+    model: str | None = None,
+    prompt: str | list[str] | None = None,
+    max_tokens: int | None = None,
+    temperature: float | None = None,
+    top_p: float | None = None,
+    stream: bool | None = None,
+    stop: str | list[str] | None = None,
+    echo: bool | None = None,
+) -> dict[str, Any]:
+    return await _completion_route(**locals())
 
 
 @api.post("/completions")
 @api.post("/completions/")
-async def completions_alias(body: dict[str, Any]) -> dict[str, Any]:
-    return await completions(body)
+async def completions_alias(
+    model: str | None = None,
+    prompt: str | list[str] | None = None,
+    max_tokens: int | None = None,
+    temperature: float | None = None,
+    top_p: float | None = None,
+    stream: bool | None = None,
+    stop: str | list[str] | None = None,
+    echo: bool | None = None,
+) -> dict[str, Any]:
+    return await _completion_route(**locals())
