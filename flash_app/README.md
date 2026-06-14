@@ -26,9 +26,29 @@ flash_app/
   requirements.txt
   pyproject.toml
   .env.example
+  scripts/codespaces_flash_deploy.sh
 ```
 
-## Deploy
+## Deploy from GitHub Codespaces
+
+From the repo root:
+
+```bash
+bash flash_app/scripts/codespaces_flash_deploy.sh
+```
+
+The script:
+
+1. Verifies Python 3.10-3.13.
+2. Installs `uv` if missing.
+3. Creates `flash_app/.venv`.
+4. Installs Flash dependencies.
+5. Prompts for authentication using either a pasted `RUNPOD_API_KEY` or `flash login --no-open`.
+6. Optionally runs `flash deploy --env production`.
+
+For Codespaces, pasting `RUNPOD_API_KEY` is usually simpler than browser login. Flash also supports `flash login --no-open`, which prints an authorization URL for manual browser authorization.
+
+## Manual deploy
 
 From this directory:
 
@@ -37,8 +57,8 @@ cd flash_app
 uv venv
 source .venv/bin/activate
 uv pip install -r requirements.txt
-uv run flash login
-uv run flash deploy
+uv run flash login --no-open
+uv run flash deploy --env production
 ```
 
 On Windows, run Flash through WSL2.
