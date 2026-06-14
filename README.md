@@ -1,13 +1,14 @@
 # RunPod llama.cpp OpenAI-compatible endpoint
 
-This image wraps `ghcr.io/ggml-org/llama.cpp:server-cuda` and supports two RunPod deployment modes from the same container image.
+This image wraps `ghcr.io/ggml-org/llama.cpp:server-cuda` and supports three RunPod deployment modes from the same container image.
 
 Set `RUNPOD_MODE` to choose behavior:
 
 - `server` default: load-balancing HTTP endpoint using FastAPI.
 - `queue`: queue-based RunPod Serverless worker using `runpod.serverless.start`.
+- `queue-adapter`: HTTP OpenAI-compatible adapter that forwards to a queue endpoint.
 
-Both modes start `llama-server` on `127.0.0.1:8080` and forward OpenAI-style requests to the local llama.cpp server.
+Both `server` and `queue` modes start `llama-server` on `127.0.0.1:8080` and forward OpenAI-style requests to the local llama.cpp server.
 
 ## Build
 
@@ -48,6 +49,7 @@ Use these RunPod settings:
 - Environment variables:
   - `RUNPOD_MODE=queue`
   - optional: `LLAMA_STARTUP_TIMEOUT=900`
+  - optional: `QUEUE_WARMUP=0` to start polling the queue before llama.cpp finishes loading
 
 Queue requests must include an `input` object. The handler accepts either a direct OpenAI-style body or a wrapper with `endpoint` and `body`.
 
@@ -81,6 +83,39 @@ Explicit endpoint request body:
 }
 ```
 
+Queue mode returns the llama.cpp/OpenAI-compatible response directly from the handler. RunPod still wraps the handler return value in its own job response under `output`.
+
+Example successful `/runsync` response shape:
+
+```json
+{
+  "status": "COMPLETED",
+  "output": {
+    "choices": [
+      {
+        "message": {
+          "role": "assistant",
+          "content": "ok"
+        }
+      }
+    ]
+  }
+}
+```
+
+Set `RUNPOD_LEGACY_RESPONSE=1` only if you want the older internal wrapper:
+
+```json
+{
+  "ok": true,
+  "status_code": 200,
+  "endpoint": "/v1/chat/completions",
+  "output": {
+    "choices": []
+  }
+}
+```
+
 Queue mode currently supports:
 
 - `/v1/chat/completions`
@@ -88,6 +123,27 @@ Queue mode currently supports:
 - `/v1/models`
 
 OpenAI streaming responses are intentionally rejected in queue mode. Use load-balancing mode for streaming.
+
+## Queue adapter HTTP mode
+
+Use this only when an OpenAI-compatible client cannot send RunPod's `{"input": ...}` queue body.
+
+Deploy as a load-balancing HTTP endpoint:
+
+- Endpoint type: Load balancing
+- Container image: `ghcr.io/rpatel622/runpod-llamacpp-openai:latest`
+- Environment variables:
+  - `RUNPOD_MODE=queue-adapter`
+  - `RUNPOD_ENDPOINT_ID=<queue endpoint id>`
+  - `RUNPOD_API_KEY=<RunPod API key>`
+  - `PORT=80`
+  - `PORT_HEALTH=80`
+
+Then use this as the OpenAI base URL:
+
+```text
+https://<adapter endpoint id>.api.runpod.ai/v1
+```
 
 ## Override llama-server flags
 
