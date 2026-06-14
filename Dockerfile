@@ -19,6 +19,7 @@ RUN python3 -m pip install --no-cache-dir --break-system-packages -r /app/requir
 
 COPY app.py /app/app.py
 COPY handler.py /app/handler.py
+COPY queue_adapter.py /app/queue_adapter.py
 COPY entrypoint.py /app/entrypoint.py
 COPY verify_openai.py /app/verify_openai.py
 
