@@ -36,8 +36,8 @@ DEFAULT_LLAMA_ARGS = [
     "-ngl", "999",
     "-ngld", "999",
     "--parallel", "3",
-    "-b", "2048",
-    "-ub", "2048",
+    "-b", "8192",
+    "-ub", "8192",
     "--image-min-tokens", "1024",
     "--image-max-tokens", "1024",
     "--cont-batching",
@@ -50,7 +50,6 @@ DEFAULT_LLAMA_ARGS = [
     "-ctxcp", "16",
     "--spec-type", "draft-mtp",
     "--spec-draft-n-max", "2",
-    "--reasoning-budget", "1024",
     "--ui",
     "-n", "32768",
     "--override-kv", "gemma4.context_length=int:262144"
