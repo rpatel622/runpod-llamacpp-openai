@@ -32,7 +32,7 @@ DEFAULT_LLAMA_ARGS = [
     "--jinja",
     "--temp", "1",
     "--top-p", "0.95",
-    "--top-k", "64",
+    "--top-k", "0",
     "-ngl", "999",
     "-ngld", "999",
     "--parallel", "3",
