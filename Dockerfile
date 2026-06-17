@@ -1,4 +1,4 @@
-FROM ghcr.io/ggml-org/llama.cpp:server-vulkan
+FROM ghcr.io/ggml-org/llama.cpp:server-cuda
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PORT=80 \
