@@ -41,7 +41,7 @@ DEFAULT_LLAMA_ARGS = [
     "--image-min-tokens", "1024",
     "--image-max-tokens", "1024",
     "--cont-batching",
-    "--reasoning", "off",
+    "--reasoning", "on",
     "-fit", "on",
     "--timeout", "6000000",
     "-kvu",
