@@ -36,7 +36,7 @@ DEFAULT_LLAMA_ARGS = [
     "-ngl", "999",
     "-ngld", "999",
     "--parallel", "3",
-    "-b", "8096",
+    "-b", "32768",
     "-ub", "8096",
     "--image-min-tokens", "1024",
     "--image-max-tokens", "1024",
