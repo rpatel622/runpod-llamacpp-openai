@@ -48,8 +48,6 @@ DEFAULT_LLAMA_ARGS = [
     "-cram", "12000",
     "-cms", "4096",
     "-ctxcp", "16",
-    "--spec-type", "draft-mtp",
-    "--spec-draft-n-max", "2",
     "--ui",
     "-n", "32768"
 ]
