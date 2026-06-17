@@ -24,5 +24,5 @@ COPY entrypoint.py /app/entrypoint.py
 COPY verify_openai.py /app/verify_openai.py
 
 EXPOSE 80 8080
-ENTRYPOINT ["/usr/bin/tini", "--"]
+ENTRYPOINT ["/usr/bin/tini", "-s", "--"]
 CMD ["python3", "/app/entrypoint.py"]
